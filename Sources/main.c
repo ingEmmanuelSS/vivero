@@ -53,10 +53,11 @@ v 0.00        Programador: Emmanuel Sanchez Solis                Fecha: 12/17/20
 int main(void)
 {
     gpio_init();
-
     for (;;)
     {
-    	LED1_SET_VALUE(0);
+    	LED1_ON;
+    	LED2_ON;
+    	LED3_ON;
     }
     return 0;
 }

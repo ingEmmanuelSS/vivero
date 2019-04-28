@@ -40,6 +40,25 @@
 #define  PCR_INPUT_CONFIG   (PORT_PCR_MUX(1) | PORT_PCR_PE_MASK | PORT_PCR_PS_MASK) //Pin configured as GPIO Input with pull up enable
 
 /*****************************  LED1 *****************************/
+
+/*
+// BIT(x) regresa el bit x puesto a uno y los demas bits en cero, ej. BIT(3) regresa 00001000
+#define BIT(x)         (1<<(x))
+// BIT_GET(x,b) regresa el bit b-esimo de x ej. BIT_GET(PINC,3)
+#define BIT_GET(x,b)   ((x) & BIT(b))
+// BIT_SET(x,b) establece en '1' el bit b de x ej. BIT_SET(PORTD,4)
+#define BIT_SET(x,b)   ((x) |= BIT(b))
+// BIT_CLEAR(x,b) establece a '0' el bit b de x
+#define BIT_CLEAR(x,b) ((x) &= ~BIT(b))
+// BIT_TOGGLE(x,b) invierte el valor del bit b de x a su complemento,
+#define BIT_TOGGLE(x,b)  ((x) ^= BIT(b))
+// BIT_WRITE(x,b,v) establece el valor 'v' de
+#define BIT_WRITE(x,b,v) ((v)? BIT_SET(x,b) : BIT_CLEAR(x,b))
+*/
+
+
+
+
 #ifdef  LED1_PORT
 #define LED1
 
@@ -53,19 +72,25 @@
 #define LED1_PSOR(LED1_PORT,LED1_BIT)        	PSOR(LED1_PORT) |= (1<<LED1_BIT)
 #define LED1_PCOR(LED1_PORT,LED1_BIT)        	PCOR(LED1_PORT) |= (1<<LED1_BIT)
 #define LED1_PTOR(LED1_PORT,LED1_BIT)        	PTOR(LED1_PORT) |= (1<<LED1_BIT)
-#define LED1_PDOR(LED1_PORT,LED1_BIT,VALUE)     PDOR(LED1_PORT) |= (VALUE<<LED1_BIT)
+
+#define BIT_ENABLE(LED1_PORT,LED1_BIT)         (PDOR(LED1_PORT) |= (1<<LED1_BIT))
+#define BIT_DESABLE(LED1_PORT,LED1_BIT)        (PDOR(LED1_PORT) &= ~(1<<LED1_BIT))
+
+#define LED1_PDOR(LED1_PORT,LED1_BIT,VALUE)     ((VALUE)?BIT_ENABLE(LED1_PORT,LED1_BIT):BIT_DESABLE(LED1_PORT,LED1_BIT))
 
 
 #define LED1_SET         						LED1_PSOR(LED1_PORT,LED1_BIT)
 #define LED1_CLR         						LED1_PCOR(LED1_PORT,LED1_BIT)
+
+#define LED1_ON                                 LED1_CLR
+#define LED1_OFF                                LED1_SET
 #define LED1_TOGGLE      						LED1_PTOR(LED1_PORT,LED1_BIT)
 #define LED1_SET_VALUE(VALUE)     				LED1_PDOR(LED1_PORT,LED1_BIT,VALUE)
-
 #endif
 
 /*****************************  LED2 *****************************/
 #ifdef  LED2_PORT
-//#define LED2
+#define LED2
 #define LED2_PCR_OUTPUT(LED2_PORT,LED2_BIT)  PCR(LED2_PORT,LED2_BIT)
 
 #define LED2_DDR_OUTPUT(LED2_PORT,LED2_BIT)  PDDR(LED2_PORT) |= (1<<LED2_BIT)
@@ -79,9 +104,10 @@
 #define LED2_SET      LED2_PSOR(LED2_PORT,LED2_BIT)
 #define LED2_CLR      LED2_PCOR(LED2_PORT,LED2_BIT)
 
-#define LED2_ON       LED2_PCOR(LED2_PORT,LED2_BIT)
-#define LED2_OFF      LED2_PSOR(LED2_PORT,LED2_BIT)
+#define LED2_ON       LED2_CLR
+#define LED2_OFF      LED2_SET
 #define LED2_TOGGLE   LED2_PTOR(LED2_PORT,LED2_BIT)
+
 #endif
 
 /*****************************  LED3 *****************************/
@@ -99,9 +125,10 @@
 #define LED3_CLR       LED3_PCOR(LED3_PORT,LED3_BIT) //Led turn with positive
 #define LED3_SET       LED3_PSOR(LED3_PORT,LED3_BIT)
 
-#define LED3_OFF       LED3_PSOR(LED3_PORT,LED3_BIT) //Led turn with positive
-#define LED3_ON        LED3_PCOR(LED3_PORT,LED3_BIT)
+#define LED3_ON        LED3_CLR
+#define LED3_OFF       LED3_SET
 #define LED3_TOGGLE   LED3_PTOR(LED3_PORT,LED3_BIT)
+
 #endif
 
 
