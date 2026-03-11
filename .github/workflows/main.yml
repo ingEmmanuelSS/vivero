@@ -1,46 +1,28 @@
-name: 'Create Release with Attachment'
-description: 'Creates a GitHub release and attaches a file to it'
-author: 'ingEmmanuelSS'
+name: Create Release Workflow
 
-inputs:
-  tag_name:
-    description: 'testTag'
-    required: true
-  release_name:
-    description: 'Name of the release'
-    required: true
-  body:
-    description: 'Release notes/description'
-    required: false
-    default: 'Release created automatically'
-  file_path:
-    description: 'Path to the file to attach'
-    required: true
-  github_token:
-    description: 'GitHub token for authentication'
-    required: true
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag version'
+        required: true
+        default: 'v1.0.0'
 
-runs:
-  using: 'composite'
-  steps:
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-      with:
-        tag_name: ${{ inputs.tag_name }}
-        release_name: ${{ inputs.release_name }}
-        body: ${{ inputs.body }}
-        draft: false
-        prerelease: false
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ inputs.file_path }}
-        asset_name: ${{ github.event.repository.name }}-${{ inputs.tag_name }}.txt
-        asset_content_type: text/plain
+      - name: Create test.txt file
+        run: echo "This is a test file for the release" > test.txt
+
+      - name: Create Release with Attachment
+        uses: ./
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          release_name: Release ${{ github.event.inputs.tag }}
+          body: 'Release created automatically with test.txt'
+          file_path: ./test.txt
+          github_token: ${{ secrets.GITHUB_TOKEN }}
