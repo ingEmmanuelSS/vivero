@@ -1,4 +1,4 @@
-name: Create Release Workflow
+name: Create Release with Attachment
 
 on:
   workflow_dispatch:
@@ -7,6 +7,10 @@ on:
         description: 'Tag version'
         required: true
         default: 'v1.0.0'
+      release_name:
+        description: 'Release name'
+        required: true
+        default: 'Test Release'
 
 jobs:
   create-release:
@@ -16,13 +20,29 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create test.txt file
-        run: echo "This is a test file for the release" > test.txt
+        run: |
+          echo "This is a test file for the release" > test.txt
+          echo "Created by: ingEmmanuelSS" >> test.txt
+          echo "Date: $(date)" >> test.txt
 
-      - name: Create Release with Attachment
-        uses: ./
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.event.inputs.tag }}
-          release_name: Release ${{ github.event.inputs.tag }}
-          body: 'Release created automatically with test.txt'
-          file_path: ./test.txt
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_name: ${{ github.event.inputs.release_name }}
+          body: 'Release created automatically'
+          draft: false
+          prerelease: false
+
+      - name: Upload test.txt to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./test.txt
+          asset_name: test.txt
+          asset_content_type: text/plain
